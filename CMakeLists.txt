@@ -115,7 +115,7 @@ else()
   if(NOT PYTHON_SITE_PACKAGES)
     execute_process(
       COMMAND ${PYTHON_EXECUTABLE} -c
-              "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
+              "import sysconfig; print(sysconfig.get_paths()['purelib'])"
       OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
       OUTPUT_STRIP_TRAILING_WHITESPACE)
     if(EXISTS "${PYTHON_SITE_PACKAGES}")
