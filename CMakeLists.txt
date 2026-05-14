@@ -100,7 +100,7 @@ else()
   set(PYTHON_SITE_PACKAGES "")
   execute_process(
     COMMAND ${PYTHON_EXECUTABLE} -c
-            "import site; print(';'.join(site.getsitepackages()))"
+            "import site; paths = site.getsitepackages() if hasattr(site, 'getsitepackages') else []; print(';'.join(paths))"
     OUTPUT_VARIABLE SITE_PACKAGES_LIST
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   string(REPLACE ";" " " SITE_PACKAGES_LIST "${SITE_PACKAGES_LIST}")
@@ -113,7 +113,17 @@ else()
     endif()
   endforeach()
   if(NOT PYTHON_SITE_PACKAGES)
-    message(FATAL_ERROR "No valid site-packages path found.")
+    execute_process(
+      COMMAND ${PYTHON_EXECUTABLE} -c
+              "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
+      OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(EXISTS "${PYTHON_SITE_PACKAGES}")
+      string(REPLACE "\\" "/" PYTHON_SITE_PACKAGES "${PYTHON_SITE_PACKAGES}")
+      message(STATUS "Found valid site-packages path: ${PYTHON_SITE_PACKAGES}.")
+    else()
+      message(FATAL_ERROR "No valid site-packages path found.")
+    endif()
   endif()
 
   if(MSVC)
