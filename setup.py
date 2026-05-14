@@ -13,7 +13,7 @@
 # limitations under the License.
 # This file referred to github.com/onnx/onnx.git
 
-from distutils import sysconfig, log
+import sysconfig
 import setuptools
 import setuptools.command.build_py
 import setuptools.command.develop
@@ -107,7 +107,7 @@ class cmake_build(setuptools.Command):
             # configure
             cmake_args = [
                 CMAKE,
-                "-DPYTHON_INCLUDE_DIR={}".format(sysconfig.get_python_inc()),
+                "-DPYTHON_INCLUDE_DIR={}".format(sysconfig.get_path('include')),
                 "-DPYTHON_EXECUTABLE={}".format(sys.executable),
                 "-DBUILD_PADDLE2ONNX_PYTHON=ON",
                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
@@ -140,14 +140,14 @@ class cmake_build(setuptools.Command):
             else:
                 cmake_args.append(
                     "-DPYTHON_LIBRARY={}".format(
-                        sysconfig.get_python_lib(standard_lib=True)
+                        sysconfig.get_path('stdlib')
                     )
                 )
             if "CMAKE_ARGS" in os.environ:
                 extra_cmake_args = shlex.split(os.environ["CMAKE_ARGS"])
                 # prevent crossfire with downstream scripts
                 del os.environ["CMAKE_ARGS"]
-                log.info("Extra cmake args: {}".format(extra_cmake_args))
+                print("Extra cmake args: {}".format(extra_cmake_args))
                 cmake_args.extend(extra_cmake_args)
             cmake_args.append(TOP_DIR)
             subprocess.check_call(cmake_args)
