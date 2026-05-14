@@ -812,13 +812,20 @@ void PaddlePirParser::GetOpAttr(const pir::Operation* op,
             pair.second.dyn_cast<::pir::ArrayAttribute>().AsVector();
         if (array_list.size() > 0) {
           PADDLE_ENFORCE_EQ(
-              array_list[0].isa<::pir::FloatAttribute>(),
+              array_list[0].isa<::pir::FloatAttribute>() ||
+                  array_list[0].isa<::pir::DoubleAttribute>(),
               true,
               ::common::errors::Unimplemented("the 0th elementwise MUST be "
-                                              "ir::FloatAttribute"));
+                                              "ir::FloatAttribute or "
+                                              "ir::DoubleAttribute"));
           for (size_t i = 0; i < array_list.size(); ++i) {
-            res->push_back(
-                array_list[i].dyn_cast<::pir::FloatAttribute>().data());
+            if (array_list[0].isa<::pir::FloatAttribute>()) {
+              res->push_back(
+                  array_list[i].dyn_cast<::pir::FloatAttribute>().data());
+            } else {
+              res->push_back(static_cast<float>(
+                  array_list[i].dyn_cast<::pir::DoubleAttribute>().data()));
+            }
           }
         }
 
@@ -845,13 +852,20 @@ void PaddlePirParser::GetOpAttr(const pir::Operation* op,
             pair.second.dyn_cast<::pir::ArrayAttribute>().AsVector();
         if (array_list.size() > 0) {
           PADDLE_ENFORCE_EQ(
-              array_list[0].isa<::pir::DoubleAttribute>(),
+              array_list[0].isa<::pir::DoubleAttribute>() ||
+                  array_list[0].isa<::pir::FloatAttribute>(),
               true,
               ::common::errors::Unimplemented("the 0th elementwise MUST be "
-                                              "ir::DoubleAttribute"));
+                                              "ir::DoubleAttribute or "
+                                              "ir::FloatAttribute"));
           for (size_t i = 0; i < array_list.size(); ++i) {
-            res->push_back(
-                array_list[i].dyn_cast<::pir::DoubleAttribute>().data());
+            if (array_list[0].isa<::pir::DoubleAttribute>()) {
+              res->push_back(
+                  array_list[i].dyn_cast<::pir::DoubleAttribute>().data());
+            } else {
+              res->push_back(
+                  array_list[i].dyn_cast<::pir::FloatAttribute>().data());
+            }
           }
         }
 
