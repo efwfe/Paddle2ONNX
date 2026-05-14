@@ -46,6 +46,7 @@ if(NOT TARGET onnx_proto)
     set(ONNX_NAMESPACE "onnx")
   endif()
   add_definitions("-DONNX_NAMESPACE=${ONNX_NAMESPACE}")
+  set(Protobuf_USE_STATIC_LIBS OFF)
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/onnx)
 endif()
 
